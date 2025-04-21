@@ -1,0 +1,111 @@
+﻿@page "/record-client"
+@using CrmService.Service
+@using CrmService.Models
+@using Radzen
+@using Radzen.Blazor
+@rendermode InteractiveServer
+@inject AppointmentService AppointmentService
+@inject ClientService ClientService
+
+<RadzenStack Orientation="Orientation.Vertical" Style="margin:18px">
+    <RadzenStack Orientation="Orientation.Horizontal">
+        <RadzenBadge Style="width:100%" Text="Тут будет адрес конкретного салона красоты, контактные данные либо объявления или приветствие" class="badge-title" />
+        <RadzenBadge Text="ЛК" Style="border-radius: 100%;font-size:20px;" class="badge-title" />
+    </RadzenStack>
+    <RadzenStack Style="background-color : #1E1E1E !important; border-radius:45px;padding-left:40px;padding-right:40px;padding-top:12px;padding-bottom:40px">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" Style="width:100%" AlignItems="AlignItems.Center">
+            <RadzenStack Orientation="Orientation.Vertical" Style="width:100%" >
+                <RadzenText Text="Зарегистрировать клиента" Style="font-size:20px;color:white !important;display:flex;justify-content: space-around;" />
+                <RadzenStack Style="background-color : #FBF9F9 !important; border-radius:45px;height:80vh;padding-left:40px;padding-top:90px" Orientation="Orientation.Vertical">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
+                        <RadzenText Text="ФИО" Style="font-size:14px; color:black !important;text-transform:none" />
+                        <RadzenTextBox @bind-Value="@client.FullName"  />
+                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
+                    </RadzenStack>
+
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
+                        <RadzenText Text="Номер телефона" Style="font-size:14px; color:black !important;text-transform:none" />
+                        <RadzenTextBox @bind-Value="@client.PhoneNumber" />
+                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
+                    </RadzenStack>
+                    
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
+                        <RadzenText Text="Услуга" Style="font-size:14px; color:black !important;text-transform:none" />
+                        <RadzenTextBox @bind-Value="@appointment.Service" />
+                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
+                    </RadzenStack>
+                    
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
+                        <RadzenText Text="Мастер" Style="font-size:14px; color:black !important;text-transform:none" />
+                        <RadzenTextBox />
+                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
+                    </RadzenStack>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
+                        <RadzenText Text="Дата и время" Style="font-size:14px; color:black !important;text-transform:none" />
+                        <RadzenDatePicker TValue="DateTime" @bind-Value="@appointment.Time" />
+                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
+                    </RadzenStack>
+
+                    <RadzenStack Orientation="Orientation.Horizontal" Style="margin-top:auto; margin-bottom:47px;padding-right:40px" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenButton Text="Очистить все" Style="border-radius:45px;background-color:#D9D9D9 !important; color:black !important; font-size:14px" Click="@ClearAll" />
+                        <RadzenButton Text="Зарегистрировать" Style="border-radius:45px;background-color:#A563FF !important; color:white !important; font-size:14px" Click="@AddClient" />
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenStack>
+
+            <RadzenStack Orientation="Orientation.Vertical" Style="width:100%;" >
+                <RadzenText Text="Данные о новых записях" Style="font-size:20px;color:white !important;display:flex;justify-content: space-around;" />
+                <RadzenStack Style="background-color : #FBF9F9 !important; border-radius:45px;height:80vh;padding-left:40px;padding-top:90px" Orientation="Orientation.Vertical">
+
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenStack>
+</RadzenStack>
+
+<style>
+    .badge-title {
+        border-radius: 45px;
+        display: flex;
+        padding: 40px;
+        justify-content: center;
+        border: 1px solid black;
+        color: black !important;
+        text-transform: none;
+        font-size: 14px;
+        background-color: #FBF9F9 !important;
+    }
+</style>
+@code {
+    private Client client = new Client();
+    private Appointment appointment = new Appointment();
+
+    public string test;
+    // Для примера дата приёма (можно будет добавить в клиент или использовать Appointment)
+    private DateTime? appointmentDate;
+
+
+
+    // Очистить все поля
+    private void ClearAll()
+    {
+        client.FullName = string.Empty;
+        client.PhoneNumber = string.Empty;
+        appointmentDate = null;
+    }
+  
+    public async Task AddClient()
+    {
+        try
+        {
+            await ClientService.AddClients(client);
+            appointment.ClientId = client.Id;
+
+            await AppointmentService.AddAppointments(appointment);
+        }
+        catch(Exception ex)
+        {
+            
+        }
+    }
+}

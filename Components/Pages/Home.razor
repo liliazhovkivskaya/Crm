@@ -1,0 +1,188 @@
+﻿@page "/"
+@using CrmService.Service
+@using CrmService.Models
+@using Radzen
+@using Radzen.Blazor
+@rendermode InteractiveServer
+@inject AppointmentService AppointmentService
+@inject ClientService ClientService
+<RadzenStack Orientation="Orientation.Vertical" Style="margin:18px">
+    <RadzenStack Orientation="Orientation.Horizontal">
+        <RadzenBadge Style="width:100%" Text="Тут будет адрес конкретного салона красоты, контактные данные либо объявления или приветствие" class="badge-title" />
+        <RadzenBadge Text="ЛК" Style="border-radius: 100%;font-size:20px;" class="badge-title" />
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+        <RadzenBadge Style="font-weight:bold; font-size: 20px" Visible="@(_appointments != null ? true:false)" Text="Пожалуйста, обработайте поступившие запросы!" class="badge-title" />
+        <RadzenButton Style="background-color: transparent" Click="AddClient">
+            <RadzenBadge class="badge-title" Style="color:white !important; background-color: #A563FF !important;padding:16px;width:250px;border:none" Text="Оповестить о приеме" />
+        </RadzenButton>
+    </RadzenStack>
+    <RadzenStack Style="background-color : #1E1E1E !important; border-radius:45px" Orientation="Orientation.Vertical">
+        <RadzenStack Orientation="Orientation.Vertical">
+            <RadzenStack Orientation="Orientation.Vertical" Style="padding-left:62px;padding-top:23px">
+                <RadzenText Text="Прием клиентов" Style="color:white !important; font-size:20px" />
+                <RadzenTextBox Visible="false" Placeholder="Введите ФИО или номер телефона клиента" Style="width:50%; border-radius:45px;padding:15px" />
+
+            </RadzenStack>
+            <RadzenDataGrid @ref="myGrid" Data="@_appointments" TItem="Appointment"
+                            ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
+                AllowFiltering="true" 
+                AllowColumnResize="true" 
+                AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" PageSize="8" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" PagingSummaryFormat="Страница {0} из {1} ({2} элементов) ">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.Client.FullName)" Title="ФИО" TextAlign="TextAlign.Center">
+                        <Template Context="Appointment" >
+                            @Appointment?.Client?.FullName
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.Client.PhoneNumber)" Title="Номер телефона" TextAlign="TextAlign.Center">
+                        <Template Context="Appointment">
+                            @Appointment?.Client?.PhoneNumber
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.Service)" Title="Услуга" TextAlign="TextAlign.Center" />
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.Time)" Title="Время" TextAlign="TextAlign.Center" />
+                    <RadzenDataGridColumn TItem="Appointment" Title="Действие" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                        <Template Context="Appointment">
+                            <RadzenButton Icon="close" Style="background-color:#A563FF !important; color:white !important;width:21px; height:21px; border-radius:100%" Click="@(async () =>await RemoveAppointment(Appointment))"/>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenStack>
+
+    </RadzenStack>
+</RadzenStack>
+
+<style>
+    .badge-title {
+        border-radius: 45px;
+        display: flex;
+        padding: 40px;
+        justify-content: center;
+        border: 1px solid black;
+        color: black !important;
+        text-transform: none;
+        font-size: 14px;
+        background-color: #FBF9F9 !important;
+    }
+</style>
+@code {
+    RadzenDataGrid<Appointment> myGrid;
+    List<Appointment> _appointments = new List<Appointment>
+    {
+        new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },new Appointment{
+            Client = clients,
+            ClientId = clients.Id,
+            Service = "Парикмахерская",
+            Time = DateTime.Now
+
+        },
+    };
+    static Client clients = new Client
+    {
+        Id = 1,
+            FullName = "Иванов Иван Иванович",
+            PhoneNumber = "+79884335669",
+
+    };
+    List<Client> _clients = new List<Client>();
+    public async Task RemoveAppointment(Appointment appointment)
+    {
+        _appointments.Remove(appointment);
+
+        await myGrid.Reload();
+    }
+
+    public async Task AddClient()
+    {
+        ClientService.AddClients(clients);
+
+        await myGrid.Reload();
+    }
+    // // При старте страницы грузим данные
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     appointments = AppointmentService.GetAppointments();
+
+    // }
+    // При старте страницы грузим данные
+    protected override async Task OnInitializedAsync()
+    {
+        _appointments = AppointmentService.GetAppointments();
+        _clients = ClientService.GetClients();
+    }
+}
