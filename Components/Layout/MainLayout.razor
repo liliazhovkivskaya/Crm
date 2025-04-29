@@ -1,17 +1,19 @@
 ﻿@using Radzen.Blazor
+@using Radzen
 @inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
+    <div class="sidebar" style="border-radius: 40px; background-color:white;">
         <NavMenu />
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+            <RadzenStack Orientation="Orientation.Horizontal" Style="height:auto;padding:16px;margin-left:40px;margin-right:40px;margin-top:10px">
+                <RadzenBadge Style="width:100%" Text="Тут будет адрес конкретного салона красоты, контактные данные либо объявления или приветствие" class="badge-title" />
+                <RadzenBadge Text="ЛК" Style="border-radius: 100%;font-size:20px;" class="badge-title" />
+            </RadzenStack>
 
-        <article class="content px-4">
+        <article class="content px-4" style="margin:0px;padding:0px">
             @Body
         </article>
     </main>

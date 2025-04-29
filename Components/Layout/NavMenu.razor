@@ -1,24 +1,21 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
+﻿<div class="top-row ps-3 navbar navbar-dark" >
+    <div class="container-fluid" style="background-color:none">
         <a class="navbar-brand" href="">CrmService</a>
     </div>
 </div>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Приемка
-            </NavLink>
-        </div>
+<div class="nav-scrollable" style="background-color:#1E1E1E; height: 100vh;">
+    <nav class="flex-column d-flex align-items-center pt-4 gap-4">
+        <NavLink class="nav-button" href="" Match="NavLinkMatch.All" ActiveClass="active-nav-button">
+            Прием клиентов
+        </NavLink>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="record-client">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Запись
-            </NavLink>
-        </div>
+        <NavLink class="nav-button" href="record-client" ActiveClass="active-nav-button">
+            Запись клиентов
+        </NavLink>
+
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="weather">
@@ -33,3 +30,28 @@
     </nav>
 </div>
 
+<style>
+    .nav-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 194px;
+        height: 67px;
+        background-color: #FBF9F9;
+        color: black;
+        font-size: 18px;
+        font-weight: 500;
+        border-radius: 40px;
+        text-decoration: none;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .nav-button.active-nav-button {
+            background-color: #A678F1;
+            color: white;
+        }
+
+    .nav-scrollable {
+        overflow-y: auto;
+    }
+</style>

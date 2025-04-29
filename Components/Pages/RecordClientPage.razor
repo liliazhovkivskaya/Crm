@@ -7,11 +7,7 @@
 @inject AppointmentService AppointmentService
 @inject ClientService ClientService
 
-<RadzenStack Orientation="Orientation.Vertical" Style="margin:18px">
-    <RadzenStack Orientation="Orientation.Horizontal">
-        <RadzenBadge Style="width:100%" Text="Тут будет адрес конкретного салона красоты, контактные данные либо объявления или приветствие" class="badge-title" />
-        <RadzenBadge Text="ЛК" Style="border-radius: 100%;font-size:20px;" class="badge-title" />
-    </RadzenStack>
+<RadzenStack Orientation="Orientation.Vertical" Style="margin:18px;height:contain">
     <RadzenStack Style="background-color : #1E1E1E !important; border-radius:45px;padding-left:40px;padding-right:40px;padding-top:12px;padding-bottom:40px">
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" Style="width:100%" AlignItems="AlignItems.Center">
             <RadzenStack Orientation="Orientation.Vertical" Style="width:100%" >
@@ -67,7 +63,7 @@
     .badge-title {
         border-radius: 45px;
         display: flex;
-        padding: 40px;
+        padding: 16px;
         justify-content: center;
         border: 1px solid black;
         color: black !important;
