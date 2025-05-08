@@ -1,0 +1,139 @@
+﻿@page "/register"
+@using System.ComponentModel.DataAnnotations
+@using CrmService.PostgreDb
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Radzen
+@using Radzen.Blazor
+
+@inject NavigationManager Nav
+@inject NotificationService Noty
+@attribute [AllowAnonymous]
+
+@rendermode InteractiveServer
+
+<RadzenNotification/>
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <div class="auth-header">Регистрация нового пользователя</div>
+
+        <EditForm Model="@model" style="padding:40px 140px 0px;" >
+            <ValidationSummary />
+
+            <RadzenTextBox @bind-Value="model.Email"
+                           Style="width:100%; margin-top:25px"
+                           Placeholder="E-mail" />
+            <ValidationMessage For="@(() => model.Email)" />
+
+            <RadzenTextBox @bind-Value="model.Phone"
+                           Style="width:100%; margin-top:18px"
+                           Placeholder="Телефон (необязательно)" />
+
+            <RadzenPassword @bind-Value="model.Password"
+                            Style="width:100%; margin-top:18px"
+                            Placeholder="Пароль" />
+            <ValidationMessage For="@(() => model.Password)" />
+                <RadzenStack Style="width:100%">
+                <RadzenButton Text="Создать"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Style="border-radius:45px;
+                     width:max-content;          /* ширина = ширине контента */
+                     display:block;              /* превращаем в блочный элемент */
+                     margin:22px auto 0;         /* центрируем */
+                     background-color:#A563FF;"
+                              Click="HandleRegister" />
+
+                </RadzenStack>
+        </EditForm>
+
+        <div class="auth-footer">
+            Уже есть аккаунт? <a href="/login">Войти</a>
+        </div>
+
+    </div>
+</div>
+
+
+<style>
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    /* ── сама карточка ─────────────────────────────────────────── */
+    .auth-card {
+        background: #fbf9f9;
+        border-radius: 45px;
+        border: 1px solid #000; /* ● рамка 1 px чёрного цвета */
+        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        overflow: hidden;
+    }
+
+    .auth-header {
+        background: #000;
+        color: #fff;
+        padding: 22px 30px;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .auth-footer {
+        text-align: center;
+        font-size: 13px;
+        padding: 18px 0 22px;
+    }
+
+        .auth-footer a {
+            color: #9c4dff;
+            text-decoration: none;
+        }
+
+    /* ── поля ввода (RadzenTextBox / RadzenPassword) ──────────── */
+    input.rz-inputtext,
+    .rz-password input {
+        border: 1px solid #000 !important; /* ● рамка 1 px, чёрная */
+        border-radius: 4px;
+    }
+</style>
+@code {
+    private readonly RegisterInput model = new();
+
+    private async Task HandleRegister()
+    {
+        // var user = new ApplicationUser
+        //     {
+        //         UserName = model.Email,
+        //         Email = model.Email,
+        //         PhoneNumber = model.Phone
+        //     };
+
+        // var res = await UserManager.CreateAsync(user, model.Password);
+        // if (!res.Succeeded)
+        // {
+        //     Noty.Notify(NotificationSeverity.Error, "Ошибка",
+        //                 string.Join("; ", res.Errors.Select(e => e.Description)));
+        //     return;
+        // }
+
+        // // в конце HandleRegister
+        // Noty.Notify(NotificationSeverity.Success,
+        //             "Успех", "Учётная запись создана, войдите в систему.");
+        // Nav.NavigateTo("/login", forceLoad: true);
+
+    }
+
+    public class RegisterInput
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        public string? Phone { get; set; }
+
+        [Required, MinLength(6)]
+        public string Password { get; set; } = string.Empty;
+    }
+}

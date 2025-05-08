@@ -1,9 +1,11 @@
-﻿using CrmService.Models;
+﻿using CrmService.Interfaces;
+using CrmService.Models;
 using CrmService.PostgreDb;
+using Microsoft.EntityFrameworkCore;
 
 namespace CrmService.Service
 {
-    public class ClientService
+    public class ClientService : IClientService
     {
         private readonly AppDbContext _context;
         public ClientService(AppDbContext context)
@@ -16,19 +18,16 @@ namespace CrmService.Service
             return _context.Clients.ToList();
         }
 
-        public async Task AddClients(Client client)
+        public Task<Client?> FindByPhoneAsync(string phone) =>
+        _context.Clients.AsNoTracking()
+                   .FirstOrDefaultAsync(c => c.PhoneNumber == phone);
+
+        public async Task<Client> CreateAsync(Client client)
         {
-            try
-            {
-                _context.Clients.Add(client);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-
-            }
-
-            
+            // Желательно нормализовать телефон, чтобы «+7-123…» и «8123…» совпадали.
+            _context.Clients.Add(client);
+            await _context.SaveChangesAsync();
+            return client;
         }
 
         public void DeleteClients(Client client)

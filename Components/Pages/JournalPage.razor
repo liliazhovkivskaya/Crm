@@ -1,0 +1,118 @@
+﻿@page "/journal"
+@using CrmService.Service
+@using CrmService.Interfaces
+@using CrmService.Enums
+@using CrmService.Models
+@using Radzen
+@using Radzen.Blazor
+@rendermode InteractiveServer
+@inject IAppointmentService AppointmentService
+@inject IClientService ClientService
+
+
+
+<RadzenStack Orientation="Orientation.Vertical" Style="margin:18px">
+    <RadzenStack Style="background-color : #1E1E1E !important; border-radius:45px" Orientation="Orientation.Vertical">
+        <RadzenStack Orientation="Orientation.Vertical">
+            <RadzenStack Orientation="Orientation.Vertical" Style="padding-left:62px;padding-top:23px">
+                <RadzenText Text="Журнал/БД" Style="color:white !important; font-size:20px" />
+
+            </RadzenStack>
+            <RadzenDataGrid @ref="myGrid" Data="@_appointments" TItem="Appointment"
+            ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or" SelectionMode="DataGridSelectionMode.Single"
+            AllowFiltering="true"
+            AllowColumnResize="true"
+            AllowAlternatingRows="false" FilterMode="FilterMode.Advanced" PageSize="8" AllowPaging="true" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" PagingSummaryFormat="Страница {0} из {1} ({2} элементов) ">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.Client.FullName)" Title="ФИО клиента" TextAlign="TextAlign.Center">
+                        <Template Context="Appointment">
+                            @Appointment.Client?.FullName
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.Client.PhoneNumber)" Title="Номер телефона клиента" TextAlign="TextAlign.Center">
+                        <Template Context="Appointment">
+                            @Appointment.Client?.PhoneNumber
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.Master.FullName)" Title="Мастер" TextAlign="TextAlign.Center">
+                        <Template Context="Appointment">
+                            @Appointment.Master?.FullName
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.Time)" Title="Дата и время " TextAlign="TextAlign.Center">
+                        <Template Context="Appointment">
+                            @Appointment.Time
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Appointment" Property="@nameof(Appointment.ServiceItem.Name)" Title="Услуга" TextAlign="TextAlign.Center">
+                        <Template Context="Appointment">
+                            @Appointment.ServiceItem?.Name
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Appointment" Title="Статус услуги" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                        <Template Context="Appointment">
+                            @switch (Appointment.Status)
+                            {
+                                case AppointmentStatus.Accepted:
+                                    <RadzenText Text="Подтвержден"  />
+                                    break;
+                                case AppointmentStatus.Pending:
+                                    <RadzenText Text="На рассмотрении" />
+                                    break;
+                                case AppointmentStatus.Rejected:
+                                    <RadzenText Text="Отклонено" />
+                                    break;
+                            }
+
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenStack>
+
+    </RadzenStack>
+</RadzenStack>
+
+
+<style>
+    .badge-title {
+        border-radius: 45px;
+        display: flex;
+        padding: 16px;
+        justify-content: center;
+        border: 1px solid black;
+        color: black !important;
+        text-transform: none;
+        font-size: 14px;
+        background-color: #FBF9F9 !important;
+    }
+</style>
+
+
+@code {
+    RadzenDataGrid<Appointment> myGrid;
+    List<Appointment> _appointments = [];
+    static Client clients;
+    List<Client> _clients = [];
+    public async Task RemoveAppointment(Appointment appointment)
+    {
+        _appointments.Remove(appointment);
+
+        await myGrid.Reload();
+    }
+
+    public async Task AddClient()
+    {
+        await ClientService.CreateAsync(clients);
+
+        await myGrid.Reload();
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _appointments = AppointmentService.GetAllAppointments();
+        _clients = ClientService.GetClients();
+    }
+}

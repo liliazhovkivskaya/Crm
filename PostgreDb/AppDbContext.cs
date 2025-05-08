@@ -13,5 +13,7 @@ namespace CrmService.PostgreDb
 
         public DbSet<Client> Clients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Master> Masters { get; set; }
+        public DbSet<ServiceItem> Services { get; set; }
     }
 }

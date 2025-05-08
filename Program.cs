@@ -1,4 +1,5 @@
 using CrmService.Components;
+using CrmService.Interfaces;
 using CrmService.PostgreDb;
 using CrmService.Service;
 using Microsoft.EntityFrameworkCore;
@@ -13,8 +14,11 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddRadzenComponents();
-builder.Services.AddScoped<ClientService>();
-builder.Services.AddScoped<AppointmentService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IMasterService, MasterService>();
+builder.Services.AddScoped<IServiceItemsService, ServiceItemsService>();
+builder.Services.AddControllers();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,7 +33,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
-
+app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

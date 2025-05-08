@@ -1,26 +1,65 @@
-﻿namespace CrmService.Models
-{
-    public enum AppointmentStatus
-    {
-        Pending,  // Новая заявка
-        Accepted, // Принята
-        Rejected  // Отклонена
-    }
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using CrmService.Enums;
 
+namespace CrmService.Models
+{
+
+    /// <summary>
+    /// Запись клиента на услугу
+    /// </summary>
     public class Appointment
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string Service { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Дата и время записи
+        /// </summary>
+        [Required]
         public DateTime Time { get; set; }
 
-        // Удобнее держать статус enum, чем bool
+        /// <summary>
+        /// Статус записи
+        /// </summary>
         public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
 
-        // Связь с клиентом
+        /// <summary>
+        /// Внешний ключ на клиента
+        /// </summary>
         public int ClientId { get; set; }
-        public Client? Client { get; set; }
 
-        // Если нужно оповещать в Telegram, можно хранить ChatId
+        /// <summary>
+        /// Клиент, сделавший запись
+        /// </summary>
+        public Client? Client { get; set; } = new Client();
+
+        /// <summary>
+        /// Внешний ключ на мастера
+        /// </summary>
+        public int? MasterId { get; set; }
+
+        /// <summary>
+        /// Мастер
+        /// </summary>
+        public Master? Master { get; set; } = new();
+
+        /// <summary>
+        /// Внешний ключ на услугу
+        /// </summary>
+        public int? ServiceItemId { get; set; }
+
+        /// <summary>
+        /// Услуга
+        /// </summary>
+        public ServiceItem? ServiceItem { get; set; } = new();
+
+        /// <summary>
+        /// Telegram ChatId заявки (может отличаться от клиента),
+        /// используется для уведомлений.
+        /// Null, если запись создана через приложение.
+        /// </summary>
         public long? TelegramChatId { get; set; }
     }
 }

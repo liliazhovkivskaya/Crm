@@ -1,0 +1,157 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.WebUtilities
+@using Radzen
+@using Radzen.Blazor
+@using CrmService.PostgreDb
+@attribute [AllowAnonymous]
+@rendermode InteractiveServer
+
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject NotificationService Noty
+
+<RadzenNotification />
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            Здравствуйте!<br />
+            Давайте начнём работу. Для начала войдите в личный кабинет.
+        </div>
+
+        <EditForm Model="@input" OnValidSubmit="HandleLogin" style="padding:40px 140px 0;">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <RadzenTextBox @bind-Value="input.UserNameOrPhone"
+                           Style="width:100%; margin-top:25px"
+                           Placeholder="Введите e-mail или телефон" />
+            <ValidationMessage For="@(() => input.UserNameOrPhone)" />
+
+            <RadzenPassword @bind-Value="input.Password"
+                            Style="width:100%; margin-top:18px"
+                            Placeholder="Введите пароль" />
+            <ValidationMessage For="@(() => input.Password)" />
+
+            <RadzenButton Text="Войти"
+                          ButtonStyle="ButtonStyle.Primary"
+                          ButtonType="ButtonType.Submit"
+                          Style="border-radius:45px;
+                                 width:max-content;
+                                 display:block;
+                                 margin:22px auto 0;
+                                 background-color:#A563FF;" />
+        </EditForm>
+
+        <div class="auth-footer">
+            Нет аккаунта? <a href="/register">Регистрация</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .auth-card {
+        background: #fbf9f9;
+        border-radius: 18px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        overflow: hidden;
+    }
+
+    .auth-header {
+        background: #000;
+        color: #fff;
+        padding: 22px;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .auth-footer {
+        text-align: center;
+        font-size: 13px;
+        padding: 18px 0 22px;
+    }
+
+        .auth-footer a {
+            color: #9c4dff;
+            text-decoration: none;
+        }
+
+    input.rz-inputtext,
+    .rz-password input {
+        border: 1px solid #000 !important;
+        border-radius: 4px;
+    }
+</style>
+
+@code {
+    private readonly LoginInput input = new();
+
+    private async Task HandleLogin()
+    {
+        // проверка формы
+        if (string.IsNullOrWhiteSpace(input.UserNameOrPhone) ||
+            string.IsNullOrWhiteSpace(input.Password))
+            return;
+
+        // разбираем returnUrl, если есть
+        var uri = Nav.ToAbsoluteUri(Nav.Uri);
+        var target = "/";
+        if (QueryHelpers.ParseQuery(uri.Query)
+                        .TryGetValue("returnUrl", out var ru) &&
+            !string.IsNullOrWhiteSpace(ru))
+        {
+            target = ru!;
+        }
+
+        // отправляем на API
+        var resp = await Http.PostAsJsonAsync("/api/account/login", input);
+
+        if (resp.IsSuccessStatusCode)
+        {
+            Noty.Notify(NotificationSeverity.Success, "Успех", "Вы успешно вошли");
+            // перезагрузим страницу, чтобы куки применились
+            Nav.NavigateTo(target, forceLoad: true);
+        }
+        else
+        {
+            // ожидаем { error = "..." } или plain text
+            string errorText;
+            try
+            {
+                var obj = await resp.Content.ReadFromJsonAsync<ErrorResponse>();
+                errorText = obj?.Error ?? await resp.Content.ReadAsStringAsync();
+            }
+            catch
+            {
+                errorText = await resp.Content.ReadAsStringAsync();
+            }
+
+            Noty.Notify(NotificationSeverity.Error, "Ошибка", errorText);
+        }
+    }
+
+    public class LoginInput
+    {
+        [Required(ErrorMessage = "Введите e-mail или телефон")]
+        public string UserNameOrPhone { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Введите пароль")]
+        public string Password { get; set; } = string.Empty;
+    }
+
+    // для разбора JSON { error = "..." }
+    private class ErrorResponse
+    {
+        public string Error { get; set; } = "";
+    }
+}

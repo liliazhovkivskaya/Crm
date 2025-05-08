@@ -1,107 +1,273 @@
 ﻿@page "/record-client"
 @using CrmService.Service
+@using CrmService.Interfaces
+@using CrmService.Enums
 @using CrmService.Models
 @using Radzen
 @using Radzen.Blazor
 @rendermode InteractiveServer
-@inject AppointmentService AppointmentService
-@inject ClientService ClientService
+@inject IAppointmentService AppointmentService
+@inject IClientService ClientService
+@inject IMasterService MasterService
+@inject IServiceItemsService ServiceItemsService
 
-<RadzenStack Orientation="Orientation.Vertical" Style="margin:18px;height:contain">
-    <RadzenStack Style="background-color : #1E1E1E !important; border-radius:45px;padding-left:40px;padding-right:40px;padding-top:12px;padding-bottom:40px">
+<RadzenStack Orientation="Orientation.Vertical" >
+    <RadzenStack Style="background-color : #1E1E1E !important; border-radius:45px;padding-left:40px;padding-right:40px;height:70vh">
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" Style="width:100%" AlignItems="AlignItems.Center">
-            <RadzenStack Orientation="Orientation.Vertical" Style="width:100%" >
-                <RadzenText Text="Зарегистрировать клиента" Style="font-size:20px;color:white !important;display:flex;justify-content: space-around;" />
-                <RadzenStack Style="background-color : #FBF9F9 !important; border-radius:45px;height:80vh;padding-left:40px;padding-top:90px" Orientation="Orientation.Vertical">
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
-                        <RadzenText Text="ФИО" Style="font-size:14px; color:black !important;text-transform:none" />
-                        <RadzenTextBox @bind-Value="@client.FullName"  />
-                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
+            <RadzenStack Orientation="Orientation.Vertical" Style="width:100%" Gap="10px" >
+
+                <RadzenText Text="Зарегистрировать клиента" Style="font-size:20px;color:white !important;display:flex;justify-content: space-around;margin-top:5%" />
+
+                <RadzenStack Style="background-color : #FBF9F9 !important; border-radius:45px;padding:50px" Orientation="Orientation.Vertical" Gap="30px">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenText Text="ФИО" Style="width:100px; color:black; font-size:14px;" />
+                        <RadzenTextBox @bind-Value="appointment.Client.FullName" Style="flex:1;" />
+                        <RadzenButton Icon="close"
+                        Style="background-color:#A1A1A1; color:white; width:20px; height:20px; border-radius:50%;"
+                        Size="ButtonSize.Small"
+                        ButtonStyle="ButtonStyle.Light"
+                                      Click="() => appointment.Client.FullName = string.Empty" />
                     </RadzenStack>
 
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
-                        <RadzenText Text="Номер телефона" Style="font-size:14px; color:black !important;text-transform:none" />
-                        <RadzenTextBox @bind-Value="@client.PhoneNumber" />
-                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
-                    </RadzenStack>
-                    
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
-                        <RadzenText Text="Услуга" Style="font-size:14px; color:black !important;text-transform:none" />
-                        <RadzenTextBox @bind-Value="@appointment.Service" />
-                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
-                    </RadzenStack>
-                    
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
-                        <RadzenText Text="Мастер" Style="font-size:14px; color:black !important;text-transform:none" />
-                        <RadzenTextBox />
-                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
-                    </RadzenStack>
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" >
-                        <RadzenText Text="Дата и время" Style="font-size:14px; color:black !important;text-transform:none" />
-                        <RadzenDatePicker TValue="DateTime" @bind-Value="@appointment.Time" />
-                        <RadzenButton Icon="close" Style="background-color:#A1A1A1 !important; color:white !important;width:15px; height:15px; border-radius:100%" />
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenText Text="Номер телефона" Style="width:100px; color:black; font-size:14px;" />
+                        <RadzenTextBox @bind-Value="@appointment.Client.PhoneNumber" Style="flex:1;" />
+                        <RadzenButton Icon="close"
+                        Style="background-color:#A1A1A1; color:white; width:20px; height:20px; border-radius:50%;"
+                        Size="ButtonSize.Small"
+                        ButtonStyle="ButtonStyle.Light"
+                                      Click="() => appointment.Client.PhoneNumber = string.Empty" />
                     </RadzenStack>
 
-                    <RadzenStack Orientation="Orientation.Horizontal" Style="margin-top:auto; margin-bottom:47px;padding-right:40px" JustifyContent="JustifyContent.SpaceBetween">
-                        <RadzenButton Text="Очистить все" Style="border-radius:45px;background-color:#D9D9D9 !important; color:black !important; font-size:14px" Click="@ClearAll" />
-                        <RadzenButton Text="Зарегистрировать" Style="border-radius:45px;background-color:#A563FF !important; color:white !important; font-size:14px" Click="@AddClient" />
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenText Text="Услуга" Style="width:100px; color:black; font-size:14px;" />
+                        <RadzenDropDown Data="@serviceItems" TValue="ServiceItem" @bind-Value="@appointment.ServiceItem" TextProperty="Name" Style="flex:1;" />
+                        <RadzenButton Icon="close"
+                        Style="background-color:#A1A1A1; color:white; width:20px; height:20px; border-radius:50%;"
+                        Size="ButtonSize.Small"
+                        ButtonStyle="ButtonStyle.Light"
+                        Click="() => appointment.ServiceItem.Name = string.Empty" />
+                    </RadzenStack>
+
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenText Text="Мастер" Style="width:100px; color:black; font-size:14px;" />
+                        <RadzenDropDown Data="@masters" TValue="Master" @bind-Value="@appointment.Master" TextProperty="FullName" Style="flex:1;" />
+                        <RadzenButton Icon="close"
+                        Style="background-color:#A1A1A1; color:white; width:20px; height:20px; border-radius:50%;"
+                        Size="ButtonSize.Small"
+                        ButtonStyle="ButtonStyle.Light"
+                        Click="() => appointment.Master =new()" />
+                    </RadzenStack>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenText Text="Дата и время" Style="width:100px; color:black; font-size:14px;" />
+                        <RadzenDatePicker TValue="DateTime" @bind-Value="@appointment.Time" Style="flex:1;" />
+                        <RadzenButton Icon="close"
+                        Style="background-color:#A1A1A1; color:white; width:20px; height:20px; border-radius:50%;"
+                        Size="ButtonSize.Small"
+                        ButtonStyle="ButtonStyle.Light"
+                        Click="() => appointment.Time = DateTime.Now" />
+                    </RadzenStack>
+
+                    <RadzenStack Orientation="Orientation.Horizontal" Style="margin-top:auto; margin-bottom:47px;padding-right:40px" JustifyContent="JustifyContent.Center">
+                        <RadzenButton Text="Очистить все" Style="border-radius:45px;background-color:#D9D9D9 !important; color:#000000 !important; font-size:14px;font-weight: 100;padding: 15px 35px;" Click="()=>{ appointment = new();}" />
+                        <RadzenButton Text="Зарегистрировать" Style="border-radius:45px;background-color:#A563FF !important; color:white !important; font-size:20px;font-weight: 100;padding: 15px 35px;" Click="@AddClient" />
                     </RadzenStack>
                 </RadzenStack>
+
+
             </RadzenStack>
 
-            <RadzenStack Orientation="Orientation.Vertical" Style="width:100%;" >
-                <RadzenText Text="Данные о новых записях" Style="font-size:20px;color:white !important;display:flex;justify-content: space-around;" />
-                <RadzenStack Style="background-color : #FBF9F9 !important; border-radius:45px;height:80vh;padding-left:40px;padding-top:90px" Orientation="Orientation.Vertical">
+            <RadzenStack Orientation="Orientation.Vertical" Gap="10px" Style="width:50%;">
 
-                </RadzenStack>
+                @if (pendingAppointments.Count > 0)
+                {
+                <RadzenText Text="Данные о новых записях"  Style="font-size:20px;color:white !important;display:flex;justify-content: space-around;margin-top:5%" />
+
+                    var current = pendingAppointments[currentIndex];
+
+                    <RadzenStack Style="background-color:#FBF9F9; border-radius:45px; padding:50px;width: max-content;" JustifyContent="JustifyContent.Center"
+                    AlignItems="AlignItems.Center" Orientation="Orientation.Vertical" Gap="20px">
+                        <RadzenStack Orientation="Orientation.Horizontal" Gap="40px">
+                            <!-- Левый столбец -->
+                            <RadzenStack Orientation="Orientation.Vertical" Gap="20px">
+                                <RadzenText Text="ФИО" Style="color:black; font-size:18px; font-weight:600;" />
+                                <RadzenText Text="Номер телефона" Style="color:black; font-size:18px; font-weight:600;" />
+                                <RadzenText Text="Услуга" Style="color:black; font-size:18px; font-weight:600;" />
+                                <RadzenText Text="Мастер" Style="color:black; font-size:18px; font-weight:600;" />
+                                <RadzenText Text="Дата" Style="color:black; font-size:18px; font-weight:600;" />
+                                <RadzenText Text="Время" Style="color:black; font-size:18px; font-weight:600;" />
+                            </RadzenStack>
+
+                            <!-- Правый столбец -->
+                            <RadzenStack Orientation="Orientation.Vertical" Gap="20px">
+                                <RadzenText Text="@(current.Client?.FullName)" Style="color:black; font-size:18px;" />
+                                <RadzenText Text="@current.Client?.PhoneNumber" Style="color:black; font-size:18px;" />
+                                <RadzenText Text="@current.ServiceItem?.Name" Style="color:black; font-size:18px;" />
+                                <RadzenText Text="@current.Master?.FullName" Style="color:black; font-size:18px;" />
+                                <RadzenText Text="@current.Time.ToShortDateString()" Style="color:black; font-size:18px;" />
+                                <RadzenText Text="@current.Time.ToShortTimeString()" Style="color:black; font-size:18px;" />
+                            </RadzenStack>
+                        </RadzenStack>
+
+                        <!-- Кнопки управления -->
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="30px" Style="margin-top:30px;">
+                            <RadzenButton Text="Отклонить" Style="background-color:#F19292;font-weight: lighter; color:#FFFFFF;font-size:20px; border-radius:45px;padding: 15px 33px;" Click="() => UpdateStatus(current.Id, AppointmentStatus.Rejected)" />
+                            <RadzenButton Text="Принять" Style="background-color:#BCE9B9;font-weight: lighter; color:#FFFFFF;font-size:20px; border-radius:45px;padding: 15px 33px;" Click="() => UpdateStatus(current.Id, AppointmentStatus.Accepted)" />
+                        </RadzenStack>
+
+                        <!-- Стрелки -->
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" Style="margin-top:20px;width: -webkit-fill-available;">
+                            <RadzenButton Style="background: none; border: none; padding: 0;" Click="@Previous">
+                                <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="26" cy="26" r="25.5" fill="white" stroke="black" />
+                                    <path d="M11 26L31 37.547V14.453L11 26Z" fill="black" />
+                                </svg>
+                            </RadzenButton>
+
+                            <RadzenButton Style="background: none; border: none; padding: 0;" Click="@Next">
+                                <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="26" cy="26" r="25.5" transform="rotate(-180 26 26)" fill="white" stroke="black" />
+                                    <path d="M41 26L21 14.453L21 37.547L41 26Z" fill="black" />
+                                </svg>
+
+                            </RadzenButton>
+                        </RadzenStack>
+                    </RadzenStack>
+
+                }
+                else
+                {
+                    <RadzenText Text="Пока информации о записях на прим не поступило." Style="font-size:20px;color:white !important;display:flex;justify-content: space-around;margin-top:5%" />
+                }
             </RadzenStack>
+
         </RadzenStack>
     </RadzenStack>
 </RadzenStack>
 
 <style>
+    .clear-button{
+    background-color: #A1A1A1;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    }
     .badge-title {
-        border-radius: 45px;
-        display: flex;
-        padding: 16px;
-        justify-content: center;
-        border: 1px solid black;
-        color: black !important;
-        text-transform: none;
-        font-size: 14px;
-        background-color: #FBF9F9 !important;
+    border-radius: 45px;
+    display: flex;
+    padding: 16px;
+    justify-content: center;
+    border: 1px solid black;
+    color: black !important;
+    text-transform: none;
+    font-size: 14px;
+    background-color: #FBF9F9 !important;
     }
 </style>
 @code {
-    private Client client = new Client();
-    private Appointment appointment = new Appointment();
+    private Appointment appointment = new()
+        {
+            // сразу проставим текущую дату – её всё равно можно поменять в DatePicker
+            Time = DateTime.UtcNow
+        };
 
-    public string test;
-    // Для примера дата приёма (можно будет добавить в клиент или использовать Appointment)
-    private DateTime? appointmentDate;
+    private List<Appointment> pendingAppointments = new();
+    private List<Master> masters = new();
+    private List<ServiceItem> serviceItems = new();
+    private int currentIndex = 0;
 
 
+    [Inject] public NotificationService NotificationService { get; set; } = default!; // Radzen
+
+    protected override async Task OnInitializedAsync()
+    {
+        pendingAppointments = AppointmentService.GetNewAppoiments();
+        masters = MasterService.GetMasters();
+        serviceItems = ServiceItemsService.GetServiceItems();
+    }
+
+    private void Previous()
+    {
+        if (currentIndex > 0)
+            currentIndex--;
+    }
+
+    private void Next()
+    {
+        if (currentIndex < pendingAppointments.Count - 1)
+            currentIndex++;
+    }
 
     // Очистить все поля
     private void ClearAll()
     {
-        client.FullName = string.Empty;
-        client.PhoneNumber = string.Empty;
-        appointmentDate = null;
+        appointment.Client.FullName = string.Empty;
+        appointment.Client.PhoneNumber = string.Empty;
     }
-  
-    public async Task AddClient()
+
+
+    private async Task AddClient()
     {
         try
         {
-            await ClientService.AddClients(client);
-            appointment.ClientId = client.Id;
+            // 1. валидация обязательных полей
+            if (string.IsNullOrWhiteSpace(appointment.Client.FullName) ||
+                string.IsNullOrWhiteSpace(appointment.Client.PhoneNumber))
+            {
+                NotificationService.Notify(
+                    NotificationSeverity.Warning,
+                    "Не хватает данных",
+                    "Заполните ФИО и номер телефона");
+                return;
+            }
 
-            await AppointmentService.AddAppointments(appointment);
+            // 2. ищем клиента по телефону
+            var existing = await ClientService.FindByPhoneAsync(appointment.Client.PhoneNumber);
+            if (existing is null)
+            {
+                // нового клиента запишем в базу
+                existing = await ClientService.CreateAsync(new Client
+                    {
+                        FullName = appointment.Client.FullName,
+                        PhoneNumber = appointment.Client.PhoneNumber
+                    });
+            }
+
+            // 3. привязываем клиента к записи
+            appointment.ClientId = existing.Id;
+            appointment.Client = existing; // чтобы навигационное свойство тоже было заполнено
+
+            // 4. сохраняем запись
+            await AppointmentService.AddAsync(appointment);
+
+            NotificationService.Notify(
+                NotificationSeverity.Success,
+                "Успех",
+                "Запись добавлена");
+
+            // 5. обновим список «новых» записей и сбросим форму
+            pendingAppointments = AppointmentService.GetNewAppoiments();
+            appointment = new() { Time = DateTime.Now };
+            currentIndex = 0;
+            StateHasChanged();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            
+            NotificationService.Notify(
+                NotificationSeverity.Error,
+                "Ошибка",
+                ex.Message);
         }
+    }
+
+    private async Task UpdateStatus(int appointmentId, AppointmentStatus status)
+    {
+        await AppointmentService.UpdateAppointmentStatus(appointmentId, status);
+        pendingAppointments = AppointmentService.GetNewAppoiments();
+
+        // сброс позиции или коррекция индекса
+        if (currentIndex >= pendingAppointments.Count)
+            currentIndex = Math.Max(0, pendingAppointments.Count - 1);
     }
 }

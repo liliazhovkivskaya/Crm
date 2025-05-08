@@ -1,33 +1,28 @@
-﻿<div class="top-row ps-3 navbar navbar-dark" >
-    <div class="container-fluid" style="background-color:none">
-        <a class="navbar-brand" href="">CrmService</a>
-    </div>
-</div>
+﻿
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" style="background-color:#1E1E1E; height: 100vh;">
-    <nav class="flex-column d-flex align-items-center pt-4 gap-4">
-        <NavLink class="nav-button" href="" Match="NavLinkMatch.All" ActiveClass="active-nav-button">
-            Прием клиентов
-        </NavLink>
-
-        <NavLink class="nav-button" href="record-client" ActiveClass="active-nav-button">
-            Запись клиентов
-        </NavLink>
-
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Журнал
+<div style="background-color:white; height: 100vh;padding:16px; width:max-content">
+    <div style="background-color:#1E1E1E;height:100%;border-radius:45px;padding:30px ">
+        <nav class="flex-column d-flex align-items-center pt-4 gap-4">
+            <NavLink class="nav-button" href="" Match="NavLinkMatch.All" ActiveClass="active-nav-button">
+                Прием клиентов
             </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Поддержка
+
+            <NavLink class="nav-button" href="record-client" ActiveClass="active-nav-button">
+                Запись клиентов
             </NavLink>
-        </div>
-    </nav>
+
+            <NavLink class="nav-button" href="journal" ActiveClass="active-nav-button">
+                Журнал
+            </NavLink>
+
+            <NavLink class="nav-button" href="weather" ActiveClass="active-nav-button">
+                Поддержка
+            </NavLink>
+        </nav>
+
+    </div>
 </div>
 
 <style>
@@ -35,11 +30,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 194px;
-        height: 67px;
         background-color: #FBF9F9;
+        width:100%;
         color: black;
-        font-size: 18px;
+        font-size: 16px;
+        padding-left: 30px;
+        padding-right: 30px;
+        padding-top: 20px;
+        padding-bottom: 20px;
         font-weight: 500;
         border-radius: 40px;
         text-decoration: none;
