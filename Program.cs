@@ -1,9 +1,11 @@
-using CrmService.Components;
+﻿using CrmService.Components;
 using CrmService.Interfaces;
 using CrmService.PostgreDb;
 using CrmService.Service;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +20,13 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 builder.Services.AddScoped<IServiceItemsService, ServiceItemsService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<SessionState>();   
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,5 +1,6 @@
-﻿@page "/login"
+﻿@page "/"
 @using System.ComponentModel.DataAnnotations
+@using CrmService.Interfaces
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.WebUtilities
 @using Radzen
@@ -7,7 +8,7 @@
 @using CrmService.PostgreDb
 @attribute [AllowAnonymous]
 @rendermode InteractiveServer
-
+@inject IAuthService Auth
 @inject HttpClient Http
 @inject NavigationManager Nav
 @inject NotificationService Noty
@@ -21,19 +22,18 @@
             Давайте начнём работу. Для начала войдите в личный кабинет.
         </div>
 
-        <EditForm Model="@input" OnValidSubmit="HandleLogin" style="padding:40px 140px 0;">
-            <DataAnnotationsValidator />
+        <EditForm Model="_m" OnValidSubmit="HandleLogin" style="padding:40px 140px 0;">
             <ValidationSummary />
 
-            <RadzenTextBox @bind-Value="input.UserNameOrPhone"
+            <RadzenTextBox @bind-Value="_m.Login"
                            Style="width:100%; margin-top:25px"
                            Placeholder="Введите e-mail или телефон" />
-            <ValidationMessage For="@(() => input.UserNameOrPhone)" />
+            <ValidationMessage For="@(() => _m.Login)" />
 
-            <RadzenPassword @bind-Value="input.Password"
+            <RadzenPassword @bind-Value="_m.Pass"
                             Style="width:100%; margin-top:18px"
                             Placeholder="Введите пароль" />
-            <ValidationMessage For="@(() => input.Password)" />
+            <ValidationMessage For="@(() => _m.Pass)" />
 
             <RadzenButton Text="Войти"
                           ButtonStyle="ButtonStyle.Primary"
@@ -94,64 +94,20 @@
 </style>
 
 @code {
-    private readonly LoginInput input = new();
+    private readonly M _m = new();
 
     private async Task HandleLogin()
     {
-        // проверка формы
-        if (string.IsNullOrWhiteSpace(input.UserNameOrPhone) ||
-            string.IsNullOrWhiteSpace(input.Password))
-            return;
-
-        // разбираем returnUrl, если есть
-        var uri = Nav.ToAbsoluteUri(Nav.Uri);
-        var target = "/";
-        if (QueryHelpers.ParseQuery(uri.Query)
-                        .TryGetValue("returnUrl", out var ru) &&
-            !string.IsNullOrWhiteSpace(ru))
-        {
-            target = ru!;
-        }
-
-        // отправляем на API
-        var resp = await Http.PostAsJsonAsync("/api/account/login", input);
-
-        if (resp.IsSuccessStatusCode)
-        {
-            Noty.Notify(NotificationSeverity.Success, "Успех", "Вы успешно вошли");
-            // перезагрузим страницу, чтобы куки применились
-            Nav.NavigateTo(target, forceLoad: true);
-        }
+        var (ok, err) = await Auth.LoginAsync(_m.Login, _m.Pass);
+        if (ok)
+            Nav.NavigateTo("/home", true);           // на главную
         else
-        {
-            // ожидаем { error = "..." } или plain text
-            string errorText;
-            try
-            {
-                var obj = await resp.Content.ReadFromJsonAsync<ErrorResponse>();
-                errorText = obj?.Error ?? await resp.Content.ReadAsStringAsync();
-            }
-            catch
-            {
-                errorText = await resp.Content.ReadAsStringAsync();
-            }
-
-            Noty.Notify(NotificationSeverity.Error, "Ошибка", errorText);
-        }
+            Noty.Notify(NotificationSeverity.Error, "Ошибка", err);
     }
 
-    public class LoginInput
+    private class M
     {
-        [Required(ErrorMessage = "Введите e-mail или телефон")]
-        public string UserNameOrPhone { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Введите пароль")]
-        public string Password { get; set; } = string.Empty;
-    }
-
-    // для разбора JSON { error = "..." }
-    private class ErrorResponse
-    {
-        public string Error { get; set; } = "";
+        [Required] public string Login { get; set; } = "";
+        [Required] public string Pass { get; set; } = "";
     }
 }

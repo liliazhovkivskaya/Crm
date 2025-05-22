@@ -1,13 +1,18 @@
 ﻿@page "/register"
+
+
 @using System.ComponentModel.DataAnnotations
 @using CrmService.PostgreDb
+@using CrmService.Interfaces
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using Radzen
 @using Radzen.Blazor
 
 @inject NavigationManager Nav
+@inject IAuthService Auth
 @inject NotificationService Noty
+@inject HttpClient Http
 @attribute [AllowAnonymous]
 
 @rendermode InteractiveServer
@@ -18,22 +23,22 @@
 
         <div class="auth-header">Регистрация нового пользователя</div>
 
-        <EditForm Model="@model" style="padding:40px 140px 0px;" >
+        <EditForm Model="_m" style="padding:40px 140px 0px;" >
             <ValidationSummary />
 
-            <RadzenTextBox @bind-Value="model.Email"
+            <RadzenTextBox @bind-Value="_m.Email"
                            Style="width:100%; margin-top:25px"
                            Placeholder="E-mail" />
-            <ValidationMessage For="@(() => model.Email)" />
+            <ValidationMessage For="@(() => _m.Email)" />
 
-            <RadzenTextBox @bind-Value="model.Phone"
+            <RadzenTextBox @bind-Value="_m.Phone"
                            Style="width:100%; margin-top:18px"
                            Placeholder="Телефон (необязательно)" />
 
-            <RadzenPassword @bind-Value="model.Password"
+            <RadzenPassword @bind-Value="_m.Pass"
                             Style="width:100%; margin-top:18px"
                             Placeholder="Пароль" />
-            <ValidationMessage For="@(() => model.Password)" />
+            <ValidationMessage For="@(() => _m.Pass)" />
                 <RadzenStack Style="width:100%">
                 <RadzenButton Text="Создать"
                               ButtonStyle="ButtonStyle.Primary"
@@ -42,7 +47,7 @@
                      display:block;              /* превращаем в блочный элемент */
                      margin:22px auto 0;         /* центрируем */
                      background-color:#A563FF;"
-                              Click="HandleRegister" />
+                              Click="HandleReg" />
 
                 </RadzenStack>
         </EditForm>
@@ -100,40 +105,19 @@
     }
 </style>
 @code {
-    private readonly RegisterInput model = new();
+    private readonly MM _m = new();
 
-    private async Task HandleRegister()
+    private async Task HandleReg()
     {
-        // var user = new ApplicationUser
-        //     {
-        //         UserName = model.Email,
-        //         Email = model.Email,
-        //         PhoneNumber = model.Phone
-        //     };
-
-        // var res = await UserManager.CreateAsync(user, model.Password);
-        // if (!res.Succeeded)
-        // {
-        //     Noty.Notify(NotificationSeverity.Error, "Ошибка",
-        //                 string.Join("; ", res.Errors.Select(e => e.Description)));
-        //     return;
-        // }
-
-        // // в конце HandleRegister
-        // Noty.Notify(NotificationSeverity.Success,
-        //             "Успех", "Учётная запись создана, войдите в систему.");
-        // Nav.NavigateTo("/login", forceLoad: true);
-
+        var (ok, err) = await Auth.RegisterAsync(_m.Email, _m.Phone, _m.Pass);
+        if (ok) Nav.NavigateTo("/", true);
+        else Noty.Notify(NotificationSeverity.Error, "Ошибка", err);
     }
 
-    public class RegisterInput
+    private class MM
     {
-        [Required, EmailAddress]
-        public string Email { get; set; } = string.Empty;
-
+        [Required, EmailAddress] public string Email { get; set; } = "";
         public string? Phone { get; set; }
-
-        [Required, MinLength(6)]
-        public string Password { get; set; } = string.Empty;
+        [Required, MinLength(6)] public string Pass { get; set; } = "";
     }
 }
